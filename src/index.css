@@ -1,0 +1,22 @@
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap");
+
+:root {
+  --font-sans: "Satoshi", system-ui, sans-serif;
+}
+
+@import "tailwindcss";
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  min-width: 100%;
+  animation: marquee 12s linear infinite;
+}
