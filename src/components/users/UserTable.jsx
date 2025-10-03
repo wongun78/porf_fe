@@ -1,8 +1,10 @@
 import UserUpdateModal from "./UserUpdateModal";
 import { useState } from "react";
+import { deleteUserAPI } from "../../services/api.service";
+import { notification } from "antd";
 
 const UserTable = (props) => {
-  const { users } = props;
+  const { users, loadUsers } = props;
 
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [userId, setUserId] = useState("");
@@ -10,10 +12,31 @@ const UserTable = (props) => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
 
-  // Thêm safety check
-  if (!users || !Array.isArray(users)) {
-    return <div>Loading users...</div>;
-  }
+  const handleDelete = async (userId, userEmail) => {
+    try {
+      const confirmed = window.confirm("Are you sure you want to delete this user?");
+      if (confirmed) {
+        const res = await deleteUserAPI(userId);
+        console.log("Delete user response:", res);
+
+        if (res && res.data) {
+          notification.success({
+            message: "User deleted successfully",
+            description: `User with email ${userEmail} has been deleted.`,
+          });
+          await loadUsers();
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      notification.error({
+        message: "Error deleting user",
+        description:
+          error.response?.data?.message ||
+          "An error occurred while deleting the user.",
+      });
+    }
+  };
 
   return (
     <>
@@ -46,7 +69,10 @@ const UserTable = (props) => {
                   >
                     Edit
                   </button>
-                  <button className="bg-red-500 text-white px-4 py-2 rounded">
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded ml-2"
+                    onClick={() => handleDelete(user._id, user.email)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -62,6 +88,7 @@ const UserTable = (props) => {
         role={role}
         open={openUpdateModal}
         setOpen={setOpenUpdateModal}
+        loadUsers={loadUsers}
       />
     </>
   );

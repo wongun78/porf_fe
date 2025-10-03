@@ -3,14 +3,15 @@ import { Button, Modal, Form, Input, notification } from "antd";
 import { updateUserAPI } from "../../services/api.service";
 import { useEffect } from "react";
 
-const UserUpdateModal = ({
-  userId,
-  username: initialUsername,
-  email: initialEmail,
-  role: initialRole,
-  open,
-  setOpen,
-}) => {
+const UserUpdateModal = (props) => {
+  const {
+    userId,
+    username: initialUsername,
+    email: initialEmail,
+    role: initialRole,
+    open,
+    setOpen,
+    loadUsers } = props;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
@@ -32,38 +33,58 @@ const UserUpdateModal = ({
 
   const handleCancel = () => {
     setOpen(false);
-
+    form.resetFields();
     setUsername("");
     setEmail("");
     setRole("");
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
-      const res = await updateUserAPI(userId, username, email, role);
+      const res = await updateUserAPI(userId, values.username, values.email, values.role);
       console.log("Update user response:", res);
 
       if (res && res.data) {
         notification.success({
           message: "User updated successfully",
-          description: `User with email ${email} has been updated.`,
+          description: `User with email ${values.email} has been updated.`,
         });
 
         setOpen(false);
-
+        form.resetFields();
         setUsername("");
         setEmail("");
         setRole("");
+        await loadUsers();
       }
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error updating user:", error);
       notification.error({
-        message: "Error creating user",
+        message: "Error updating user",
         description:
           error.response?.data?.message ||
-          "An error occurred while creating the user.",
+          "An error occurred while updating the user.",
       });
     }
+  };
+
+  // Sync state với form khi user type
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    form.setFieldsValue({ username: value });
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    form.setFieldsValue({ email: value });
+  };
+
+  const handleRoleChange = (e) => {
+    const value = e.target.value;
+    setRole(value);
+    form.setFieldsValue({ role: value });
   };
 
   return (
@@ -89,7 +110,7 @@ const UserUpdateModal = ({
           >
             <Input
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={handleUsernameChange}
             />
           </Form.Item>
           <Form.Item
@@ -100,7 +121,7 @@ const UserUpdateModal = ({
               { type: "email", message: "Please enter a valid email!" },
             ]}
           >
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input value={email} onChange={handleEmailChange} />
           </Form.Item>
 
           <Form.Item
@@ -108,11 +129,11 @@ const UserUpdateModal = ({
             name="role"
             rules={[{ required: true, message: "Please input role!" }]}
           >
-            <Input value={role} onChange={(e) => setRole(e.target.value)} />
+            <Input value={role} onChange={handleRoleChange} />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+            <Button type="primary" htmlType="submit">
               Submit
             </Button>
             <Button style={{ marginLeft: 8 }} onClick={handleCancel}>

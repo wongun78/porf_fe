@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { Button, Modal, Form, Input, notification } from "antd";
 import { createUserAPI } from "../../services/api.service";
 
-const UserFilter = ({ fetchAllUsers }) => {
+const UserFilter = (props) => {
+
+  const { loadUsers } = props;
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,32 +20,37 @@ const UserFilter = ({ fetchAllUsers }) => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-
+    form.resetFields();
     setUsername("");
     setEmail("");
     setPassword("");
     setRole("");
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
-      const res = await createUserAPI(username, email, password, role);
+      const res = await createUserAPI(
+        values.username,
+        values.email,
+        values.password,
+        values.role
+      );
       console.log("Create user response:", res);
 
       if (res && res.data) {
         notification.success({
           message: "User created successfully",
-          description: `User with email ${email} has been created.`,
+          description: `User with email ${values.email} has been created.`,
         });
 
         setIsModalOpen(false);
-
+        form.resetFields();
         setUsername("");
         setEmail("");
         setPassword("");
         setRole("");
 
-        fetchAllUsers();
+        await loadUsers();
       }
     } catch (error) {
       console.error("Error creating user:", error);
@@ -119,7 +127,7 @@ const UserFilter = ({ fetchAllUsers }) => {
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" onClick={handleSubmit}>
+            <Button type="primary" htmlType="submit">
               Submit
             </Button>
             <Button style={{ marginLeft: 8 }} onClick={handleCancel}>

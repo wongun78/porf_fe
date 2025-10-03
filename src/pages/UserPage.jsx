@@ -31,7 +31,7 @@ const UserPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen text-white">
         Loading...
       </div>
     );
@@ -47,8 +47,9 @@ const UserPage = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-white">
-      <UserFilter fetchAllUsers={loadUsers} />
-      <UserTable users={users} />
+      <UserFilter loadUsers={loadUsers} />
+      <UserTable users={users}
+        loadUsers={loadUsers} />
     </div>
   );
 };
