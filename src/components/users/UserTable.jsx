@@ -43,7 +43,7 @@ const UserTable = (props) => {
       <table>
         <thead>
           <tr>
-            <th>Id</th>
+            <th>Image</th>
             <th>Name</th>
             <th>Email</th>
             <th>Action</th>
@@ -53,7 +53,16 @@ const UserTable = (props) => {
           {users.map((user) => {
             return (
               <tr key={user._id}>
-                <td className="text-gray-500">{user._id}</td>
+                <td className="text-gray-500">
+                  <img
+                    src={user.avatar}
+                    alt={user.username || "User avatar"}
+                    className="w-10 h-10 rounded-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/40x40?text=User"
+                    }}
+                  />
+                </td>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>
